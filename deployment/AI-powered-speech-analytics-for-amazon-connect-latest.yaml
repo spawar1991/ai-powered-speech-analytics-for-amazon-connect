@@ -129,6 +129,8 @@ Metadata:
         default: Contacts Table Name
       webSocketConnectionsTable:
         default: WebSocket Connection Details Table Name
+      CallcategoryLambda:
+        default: Lambda Function to send Call Category Details
 
 
 Outputs:
