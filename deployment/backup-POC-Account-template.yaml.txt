@@ -41,22 +41,6 @@ Parameters:
         Description:  >
             The Amazon S3 prefix where raw/wav (audio/L16; mono; 8 kHz) audio recordings may be uploaded in the event you would like
             process an audio file vs making a phone call and streaming from KVS. Mainly for testing, or for realtime transcription of audio files. This will only work with single channel files (mono).
-    transcriptSegmentsTable:
-        Type: String
-        Default:  callTranscriptSegments
-        Description:  The name of the DynamoDB Table where segments (utterances) from the customer for the caller transcript will be saved (Ensure you do not have a table with this name already).
-    transcriptSegmentsToCustomerTable:
-        Type: String
-        Default:  callTranscriptSegmentsToCustomer
-        Description:  The name of the DynamoDB Table where segments (utterances) to the customer for the caller transcript will be saved (Ensure you do not have a table with this name already).
-    contactDetailsTable:
-      Type: String
-      Default:  callDetails
-      Description:  The name of the DynamoDB Table where contact details will be written (Ensure you do not have a table with this name already).
-    webSocketConnectionsTable:
-      Type: String
-      Default:  webSocketConnectionsDetails
-      Description:  DynamoDB Table to maintain connections and contactId Information.
     S3BucketNameForWebSite:
         Type: String
         Default: "new-website-bucket-name"
@@ -82,10 +66,6 @@ Parameters:
         Type: String
         ConstraintDescription: "Invalid Amazon Connect instance alias"
         Description: Amazon Connect Instance Alias (Ensure you it is entered accurately as configured under Amazon Connect Service ).
-    CallcategoryLambda:
-        Type: String
-        ConstraintDescription: "Invalid Amazon Lambda Function ARN"
-        Description: Enter the Lambda ARN througth which we need to send call category/summary details.
 
 Metadata:
   'AWS::CloudFormation::Interface':
@@ -121,14 +101,6 @@ Metadata:
         default: Audio File Prefix
       rawAudioUploadPrefix:
         default: Test Mono Audio Prefix
-      transcriptSegmentsTable:
-        default: Transcript Table Name for audio from the customer
-      transcriptSegmentsToCustomerTable:
-        default: Transcript Table Name for audio to the customer
-      contactDetailsTable:
-        default: Contacts Table Name
-      webSocketConnectionsTable:
-        default: WebSocket Connection Details Table Name
 
 
 Outputs:
@@ -138,9 +110,6 @@ Outputs:
     contactsDDBTable:
         Description:  The ARN of the DynamoDB table created to store contact details used in this solution
         Value: !GetAtt contactDetailsDDBTable.Arn
-    transcriptSegmentsToCustomerDDBTable:
-        Description:  The ARN of the DynamoDB table created to store segments of call transcripts (Agent audio)
-        Value: !GetAtt transcriptSegmentsToCustomerDDBTable.Arn
     GwIamRole:
         Description: The IAM Role created for the API GW Lambda Functions in this template
         Value: !Ref AIPoweredSpeechAnalyticsApiGwLambdaRole
@@ -329,7 +298,6 @@ Resources:
     transcriptSegmentsDDBTable:
       Type: AWS::DynamoDB::Table
       Properties:
-        TableName:  !Ref transcriptSegmentsTable
         AttributeDefinitions:
           -
             AttributeName: "ContactId"
@@ -363,7 +331,6 @@ Resources:
     transcriptSegmentsToCustomerDDBTable:
         Type: AWS::DynamoDB::Table
         Properties:
-          TableName:  !Ref transcriptSegmentsToCustomerTable
           AttributeDefinitions:
             -
               AttributeName: "ContactId"
@@ -397,7 +364,6 @@ Resources:
     contactDetailsDDBTable:
       Type: AWS::DynamoDB::Table
       Properties:
-        TableName:  !Ref contactDetailsTable
         AttributeDefinitions:
           -
             AttributeName: "contactId"
@@ -903,7 +869,6 @@ Resources:
     webSocketConnectionsDDBTable:
         Type: 'AWS::DynamoDB::Table'
         Properties:
-            TableName:  !Ref webSocketConnectionsTable
             AttributeDefinitions:
                 - AttributeName: connectionId
                   AttributeType: S
@@ -948,26 +913,6 @@ Resources:
             Description: Connect Integration
             IntegrationType: AWS_PROXY
             IntegrationUri: !Sub arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${wsrealtimetranscribeOnConnect.Arn}/invocations
-    
-    DataRoute:
-        Type: 'AWS::ApiGatewayV2::Route'
-        Properties:
-            ApiId: !Ref AIPoweredSpeechAnalyticsWS
-            RouteKey: $output
-            AuthorizationType: AWS_IAM
-            OperationName: DataRoute
-            Target: !Join
-                - /
-                - - integrations
-                  - !Ref DataInteg
-
-    DataInteg:
-        Type: 'AWS::ApiGatewayV2::Integration'
-        Properties:
-            ApiId: !Ref AIPoweredSpeechAnalyticsWS
-            Description: Connect Integration
-            IntegrationType: AWS_PROXY
-            IntegrationUri: !Sub arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${CallcategoryLambda}/invocations
 
     DisconnectRoute:
         Type: 'AWS::ApiGatewayV2::Route'
