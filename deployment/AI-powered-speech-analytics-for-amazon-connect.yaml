@@ -41,6 +41,19 @@ Parameters:
         Description:  >
             The Amazon S3 prefix where raw/wav (audio/L16; mono; 8 kHz) audio recordings may be uploaded in the event you would like
             process an audio file vs making a phone call and streaming from KVS. Mainly for testing, or for realtime transcription of audio files. This will only work with single channel files (mono).
+    transcriptSegmentsTable:
+        Type: String
+        Default:  contactTranscriptSegments
+        Description:  The name of the DynamoDB Table where segments (utterances) from the customer for the caller transcript will be saved (Ensure you do not have a table with this name already).
+    transcriptSegmentsToCustomerTable:
+        Type: String
+        Default:  contactTranscriptSegmentsToCustomer
+        Description:  The name of the DynamoDB Table where segments (utterances) to the customer for the caller transcript will be saved (Ensure you do not have a table with this name already).
+    contactDetailsTable:
+      Type: String
+      Default:  contactDetails
+      Description:  The name of the DynamoDB Table where contact details will be written (Ensure you do not have a table with this name already).
+  existingS3BucketName:
     S3BucketNameForWebSite:
         Type: String
         Default: "new-website-bucket-name"
@@ -101,6 +114,12 @@ Metadata:
         default: Audio File Prefix
       rawAudioUploadPrefix:
         default: Test Mono Audio Prefix
+      transcriptSegmentsTable:
+        default: Transcript Table Name for audio from the customer
+      transcriptSegmentsToCustomerTable:
+        default: Transcript Table Name for audio to the customer
+      contactDetailsTable:
+        default: Contacts Table Name
 
 
 Outputs:
@@ -1296,6 +1315,7 @@ Resources:
                     - POST
                     - PUT
                 TargetOriginId: !Ref S3BucketNameForWebSite
+                DefaultTTL: 60
                 ForwardedValues:
                     QueryString: true
                     Cookies:
@@ -1310,3 +1330,4 @@ Resources:
                         - JP
                         - AU
                         - FR
+                        - IN
