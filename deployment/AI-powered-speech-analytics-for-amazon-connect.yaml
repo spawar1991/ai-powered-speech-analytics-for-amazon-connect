@@ -43,16 +43,20 @@ Parameters:
             process an audio file vs making a phone call and streaming from KVS. Mainly for testing, or for realtime transcription of audio files. This will only work with single channel files (mono).
     transcriptSegmentsTable:
         Type: String
-        Default:  contactTranscriptSegments
+        Default:  callTranscriptSegments
         Description:  The name of the DynamoDB Table where segments (utterances) from the customer for the caller transcript will be saved (Ensure you do not have a table with this name already).
     transcriptSegmentsToCustomerTable:
         Type: String
-        Default:  contactTranscriptSegmentsToCustomer
+        Default:  callTranscriptSegmentsToCustomer
         Description:  The name of the DynamoDB Table where segments (utterances) to the customer for the caller transcript will be saved (Ensure you do not have a table with this name already).
     contactDetailsTable:
       Type: String
-      Default:  contactDetails
+      Default:  callDetails
       Description:  The name of the DynamoDB Table where contact details will be written (Ensure you do not have a table with this name already).
+    webSocketConnectionsTable:
+      Type: String
+      Default:  webSocketConnectionsDetails
+      Description:  DynamoDB Table to maintain connections and contactId Information.
   existingS3BucketName:
     S3BucketNameForWebSite:
         Type: String
@@ -120,6 +124,8 @@ Metadata:
         default: Transcript Table Name for audio to the customer
       contactDetailsTable:
         default: Contacts Table Name
+      webSocketConnectionsTable:
+        default: WebSocket Connection Details Table Name
 
 
 Outputs:
@@ -129,6 +135,9 @@ Outputs:
     contactsDDBTable:
         Description:  The ARN of the DynamoDB table created to store contact details used in this solution
         Value: !GetAtt contactDetailsDDBTable.Arn
+    transcriptSegmentsToCustomerDDBTable:
+        Description:  The ARN of the DynamoDB table created to store segments of call transcripts (Agent audio)
+        Value: !GetAtt transcriptSegmentsToCustomerDDBTable.Arn
     GwIamRole:
         Description: The IAM Role created for the API GW Lambda Functions in this template
         Value: !Ref AIPoweredSpeechAnalyticsApiGwLambdaRole
@@ -317,6 +326,7 @@ Resources:
     transcriptSegmentsDDBTable:
       Type: AWS::DynamoDB::Table
       Properties:
+        TableName:  !Ref transcriptSegmentsTable
         AttributeDefinitions:
           -
             AttributeName: "ContactId"
@@ -350,6 +360,7 @@ Resources:
     transcriptSegmentsToCustomerDDBTable:
         Type: AWS::DynamoDB::Table
         Properties:
+          TableName:  !Ref transcriptSegmentsToCustomerTable
           AttributeDefinitions:
             -
               AttributeName: "ContactId"
@@ -383,6 +394,7 @@ Resources:
     contactDetailsDDBTable:
       Type: AWS::DynamoDB::Table
       Properties:
+        TableName:  !Ref contactDetailsTable
         AttributeDefinitions:
           -
             AttributeName: "contactId"
@@ -888,6 +900,7 @@ Resources:
     webSocketConnectionsDDBTable:
         Type: 'AWS::DynamoDB::Table'
         Properties:
+            TableName:  !Ref webSocketConnectionsTable
             AttributeDefinitions:
                 - AttributeName: connectionId
                   AttributeType: S
