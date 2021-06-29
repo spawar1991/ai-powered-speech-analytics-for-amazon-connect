@@ -1,17 +1,20 @@
-/**********************************************************************************************************************
- *  Copyright 2019 Amazon.com, Inc. or its affiliates. All Rights Reserved                                            *
- *                                                                                                                    *
- *  Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated      *
- *  documentation files (the "Software"), to deal in the Software without restriction, including without limitation   *
- *  the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and  *
- *  to permit persons to whom the Software is furnished to do so.                                                     *
- *                                                                                                                    *
- *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO  *
- *  THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE    *
- *  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF         *
- *  CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS *
- *  IN THE SOFTWARE.                                                                                                  *
- **********************************************************************************************************************/
+/*
+ * Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * SPDX-License-Identifier: MIT-0
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this
+ * software and associated documentation files (the "Software"), to deal in the Software
+ * without restriction, including without limitation the rights to use, copy, modify,
+ * merge, publish, distribute, sublicense, and/or sell copies of the Software, and to
+ * permit persons to whom the Software is furnished to do so.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+ * INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
+ * PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+ * HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+ * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+ * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
 
 var AWS = require("aws-sdk");
 var docClient = new AWS.DynamoDB.DocumentClient();
@@ -28,6 +31,7 @@ exports.handler = (event, context, callback) => {
     var tableName = process.env.table_name;
     var currentTimeStamp = new Date().toString();
     var currentDate = new Date().toLocaleDateString();
+    var sessionDuration = process.env.session_duration;
 
     //set up the database query to be used to update the customer information record in DynamoDB
     var paramsUpdate = {
@@ -55,7 +59,7 @@ exports.handler = (event, context, callback) => {
     });
 
     //callback(null, buildResponse(true));
-    getTempCredentials(callback, contactId);
+    getTempCredentials(callback, contactId, sessionDuration);
 };
 
 function buildResponse(isSuccess, data) {
@@ -77,9 +81,9 @@ function buildResponse(isSuccess, data) {
     }
 }
 
-function getTempCredentials(callback, contactId){
+function getTempCredentials(callback, contactId, sessionDuration){
       var params = {
-        DurationSeconds: 900, 
+        DurationSeconds: sessionDuration, 
         ExternalId: "AI_Powered_SA_for_AC", 
         RoleArn: process.env.assume_role, 
         RoleSessionName: contactId

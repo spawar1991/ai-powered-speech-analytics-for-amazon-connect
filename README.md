@@ -1,14 +1,5 @@
 # AI Powered Speech Analytics for Amazon Connect
-todo
-
-## Running unit tests for customization
-* Clone the repository, then make the desired code changes
-* Next, run unit tests to make sure added customization passes the tests
-```
-cd ./deployment
-chmod +x ./run-unit-tests.sh  \n
-./run-unit-tests.sh \n
-```
+The AI Powered Speech Analytics for Amazon Connect solution provides the combination of speech to text transcription, translation into preferred languages, and insights for agents and supervisors all in real-time. This enables agents to better understand customer needs and drive resolution using the insights the solution provides while they are still interacting with their customer.
 
 ## Building distributable for customization
 * Configure the bucket name of your target Amazon S3 distribution bucket
@@ -33,39 +24,11 @@ aws s3 cp ./dist/ s3://my-bucket-name-<aws_region>/$SOLUTION_NAME/$VERSION/ --re
 * Get the link of the solution template uploaded to your Amazon S3 bucket.
 * Deploy the solution to your account by launching a new AWS CloudFormation stack using the link of the solution template in Amazon S3.
 
-*** 
-
-## File Structure
-
-```
-|-deployment/
-  |-build-s3-dist.sh             [ shell script for packaging distribution assets ]
-  |-run-unit-tests.sh            [ shell script for executing unit tests ]
-  |-solution.yaml                [ solution CloudFormation deployment template ]
-|-source/
-  |-example-function-js          [ Example microservice function in javascript ]
-    |- lib/                      [ Example function libraries ]
-  |-example-function-py          [ Example microservice function in python ]
-
-```
-
-Each microservice follows the structure of:
-
-```
-|-service-name/
-  |-lib/
-    |-[service module libraries and unit tests]
-  |-index.js [injection point for microservice]
-  |-package.json
-```
 
 ***
 
+Copyright 2021 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+SPDX-License-Identifier: MIT-0
 
-Copyright 2019 Amazon.com, Inc. or its affiliates. All Rights Reserved.
-
-Licensed under the Apache License Version 2.0 (the "License"). You may not use this file except in compliance with the License. A copy of the License is located at
-
-    http://www.apache.org/licenses/
-
-or in the "license" file accompanying this file. This file is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, express or implied. See the License for the specific language governing permissions and limitations under the License.
+Licensed under the the MIT-0 License. See the LICENSE file.
+This file is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, express or implied. See the License for the specific language governing permissions and limitations under the License.
